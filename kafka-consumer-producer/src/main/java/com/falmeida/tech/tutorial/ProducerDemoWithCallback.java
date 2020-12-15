@@ -20,21 +20,25 @@ public class ProducerDemoWithCallback {
 
         KafkaProducer<String,String> producer = new KafkaProducer<String, String>(properties);
 
-        ProducerRecord<String,String> record = new ProducerRecord<String, String>("topic-sample","hello topic test");
+        for(int i = 0; i < 10; i++){
 
-        producer.send(record, new Callback() {
-            public void onCompletion(RecordMetadata recordMetadata, Exception e) {
-                if(e == null){
-                    logger.info("Received new metadata. \n" +
-                            "Topic: " + recordMetadata.topic() + "\n" +
-                            "Partition: " + recordMetadata.partition() + "\n" +
-                            "Offset: " +recordMetadata.offset() + "\n" +
-                            "Timestamp: " + recordMetadata.timestamp());
-                }else{
-                    logger.error("Error while producing ", e);
+            ProducerRecord<String,String> record = new ProducerRecord<String, String>("topic-sample","hello topic test" + Integer.valueOf(i));
+
+            producer.send(record, new Callback() {
+                public void onCompletion(RecordMetadata recordMetadata, Exception e) {
+                    if(e == null){
+                        logger.info("Received new metadata. \n" +
+                                "Topic: " + recordMetadata.topic() + "\n" +
+                                "Partition: " + recordMetadata.partition() + "\n" +
+                                "Offset: " +recordMetadata.offset() + "\n" +
+                                "Timestamp: " + recordMetadata.timestamp());
+                    }else{
+                        logger.error("Error while producing ", e);
+                    }
                 }
-            }
-        });
+            });
+        }
+
         producer.flush();
         producer.close();
 
