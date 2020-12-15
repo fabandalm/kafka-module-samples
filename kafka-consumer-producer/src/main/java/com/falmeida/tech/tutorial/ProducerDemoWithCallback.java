@@ -12,6 +12,7 @@ public class ProducerDemoWithCallback {
     static Logger logger = LoggerFactory.getLogger(ProducerDemoWithCallback.class);
 
     public static void main(String[] args) {
+
         String bootstrapServers = "localhost:9092";
         Properties properties = new Properties();
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,bootstrapServers);
@@ -22,7 +23,7 @@ public class ProducerDemoWithCallback {
 
         for(int i = 0; i < 10; i++){
 
-            ProducerRecord<String,String> record = new ProducerRecord<String, String>("topic-sample","hello topic test" + Integer.valueOf(i));
+            ProducerRecord<String,String> record = new ProducerRecord<String, String>("topic-sample","hello topic test" + i);
 
             producer.send(record, new Callback() {
                 public void onCompletion(RecordMetadata recordMetadata, Exception e) {
@@ -31,6 +32,8 @@ public class ProducerDemoWithCallback {
                                 "Topic: " + recordMetadata.topic() + "\n" +
                                 "Partition: " + recordMetadata.partition() + "\n" +
                                 "Offset: " +recordMetadata.offset() + "\n" +
+                                "Key Serializer: " + recordMetadata.serializedKeySize() + "\n" +
+                                "Value Serializer: " + recordMetadata.serializedValueSize() + "\n" +
                                 "Timestamp: " + recordMetadata.timestamp());
                     }else{
                         logger.error("Error while producing ", e);
