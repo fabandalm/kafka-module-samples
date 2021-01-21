@@ -1,6 +1,8 @@
 package com.falmeida.tech;
 
 import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecordBuilder;
 
 public class GenericRecordExamples {
 
@@ -22,6 +24,17 @@ public class GenericRecordExamples {
                 "       { \"name\": \"automated_email\", \"type\": \"boolean\", \"default\": true, \"doc\": \"Field indicating if the user is enrolled in marketing emails\" }\n" +
                 "     ]\n" +
                 "}");
+
+        //step 1: create a generic record
+        GenericRecordBuilder customerBuilder = new GenericRecordBuilder(schema);
+        customerBuilder.set("first_name","Fabio");
+        customerBuilder.set("last_name","Almeida");
+        customerBuilder.set("age",25);
+        customerBuilder.set("height",170f);
+        customerBuilder.set("weight",75f);
+        customerBuilder.set("automated_email",false);
+        GenericData.Record customer = customerBuilder.build();
+        System.out.println(customer);
     }
 
 }
