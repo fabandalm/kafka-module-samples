@@ -1,8 +1,14 @@
 package com.falmeida.tech;
 
 import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericRecordBuilder;
+import org.apache.avro.file.DataFileReader;
+import org.apache.avro.file.DataFileWriter;
+import org.apache.avro.generic.*;
+import org.apache.avro.io.DatumReader;
+import org.apache.avro.io.DatumWriter;
+
+import java.io.File;
+import java.io.IOException;
 
 public class GenericRecordExamples {
 
@@ -35,6 +41,49 @@ public class GenericRecordExamples {
         customerBuilder.set("automated_email",false);
         GenericData.Record customer = customerBuilder.build();
         System.out.println(customer);
+
+        GenericRecordBuilder customerBuilderWithDefault = new GenericRecordBuilder(schema);
+        customerBuilderWithDefault.set("first_name","Fabio");
+        customerBuilderWithDefault.set("last_name","Almeida");
+        customerBuilderWithDefault.set("age",25);
+        customerBuilderWithDefault.set("height",170f);
+        customerBuilderWithDefault.set("weight",75f);
+        GenericData.Record customerWithDefault = customerBuilderWithDefault.build();
+        System.out.println(customerWithDefault);
+
+        //step 2: write the generic record to a file
+        final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
+        try (DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter)) {
+            dataFileWriter.create(customer.getSchema(), new File("customer-generic.avro"));
+            dataFileWriter.append(customer);
+            System.out.println("Written customer-generic.avro");
+            dataFileWriter.close();
+        } catch (IOException e) {
+            System.out.println("Couldn't write file");
+            e.printStackTrace();
+        }
+
+        //step 3: read a generic record from a file
+        final File file = new File("customer-generic.avro");
+        final DatumReader<GenericRecord> datumReader = new GenericDatumReader<>();
+        GenericRecord customerRead;
+        try (DataFileReader<GenericRecord> dataFileReader = new DataFileReader<>(file, datumReader)){
+            customerRead = dataFileReader.next();
+            System.out.println("Successfully read avro file");
+            System.out.println(customerRead.toString());
+
+            // get the data from the generic record
+            System.out.println("First name: " + customerRead.get("first_name"));
+
+            // read a non existent field
+            System.out.println("Non existent field: " + customerRead.get("not_here"));
+        }
+        catch(IOException e) {
+            e.printStackTrace();
+        }
+
+
+
     }
 
 }
